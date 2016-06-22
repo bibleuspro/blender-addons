@@ -800,6 +800,8 @@ class DNAStruct:
                 return DNA_IO.write_string(handle, value, dna_name.array_size)
             else:
                 return DNA_IO.write_bytes(handle, value, dna_name.array_size)
+        elif dna_type.dna_type_id == b'int':
+            DNA_IO.write_int(handle, header, value)
         else:
             raise NotImplementedError("Setting %r is not yet supported for %r" %
                                       (dna_type, dna_name), dna_name, dna_type)
@@ -891,6 +893,13 @@ class DNA_IO:
     def read_int(handle, fileheader):
         st = DNA_IO.SINT[fileheader.endian_index]
         return st.unpack(handle.read(st.size))[0]
+
+    @staticmethod
+    def write_int(handle, fileheader, value):
+        assert isinstance(value, int), 'value must be int, but is %r: %r' % (type(value), value)
+        st = DNA_IO.SINT[fileheader.endian_index]
+        to_write = st.pack(value)
+        handle.write(to_write)
 
     FLOAT = struct.Struct(b'<f'), struct.Struct(b'>f')
 
